@@ -1,4 +1,4 @@
-const getRandomInt = function(from, to) {
+const getRandomInt = (from, to) => {
   if (from > to) {
     [to, from] = [from, to];
   } else if (from === to) {
@@ -10,7 +10,7 @@ const getRandomInt = function(from, to) {
 
 getRandomInt(10, 20);
 
-const getRandomFixedPoint = function(from, to, digits) {
+const getRandomFixedPoint = (from, to, digits) => {
   const significantFrom = Math.floor(from * (10 ** digits));
   const significantTo = Math.floor(to * (10 ** digits));
 
