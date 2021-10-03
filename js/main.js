@@ -1,4 +1,4 @@
-const MIN_LATITUDE = 35.70000;
+const MIN_LATITUDE = 35.65000;
 const MAX_LATITUDE = 35.70000;
 const MIN_LONGITUDE = 139.70000;
 const MAX_LONGITUDE = 139.80000;
@@ -103,7 +103,7 @@ const getRandomArrayElements = (elementsNumber, arr) => {
 
   return Array.from(
     { length: elementsNumber },
-    () => availableFeatures.splice(getRandomInt(0, availableFeatures.length), 1),
+    () => availableFeatures.splice(getRandomInt(0, availableFeatures.length - 1), 1)[0],
   );
 };
 
@@ -122,7 +122,7 @@ const createOffer = (location) => ({
 });
 
 const createAnnouncement = () => {
-  location = createLocation();
+  const location = createLocation();
 
   return {
     author: createAuthor(),
@@ -132,6 +132,7 @@ const createAnnouncement = () => {
 };
 
 
-const announcement = Array.from({length: ANNOUNCEMENT_COUNT}, createAnnouncement);
+// eslint-disable-next-line no-unused-vars
+const announcements = Array.from({ length: ANNOUNCEMENT_COUNT }, createAnnouncement);
 getRandomInt(10, 20);
 getRandomFixedPoint(1.5, 1.6, 2);
