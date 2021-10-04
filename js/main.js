@@ -84,12 +84,22 @@ const createLocation = () => ({
   lng: getRandomFixedPoint(MIN_LONGITUDE, MAX_LONGITUDE, LOCATION_PRECISION),
 });
 
-const getRandomAvatarId = (minId = MIN_AVATAR_ID, maxId = MAX_AVATAR_ID) => (
-  `0${getRandomInt(minId, maxId)}`.slice(-2)
-);
+const getUniqueAvatarId = (() => {
+  let currentId = MIN_AVATAR_ID;
+
+  return () => {
+    if (currentId > MAX_AVATAR_ID) {
+      currentId = MAX_AVATAR_ID;
+    } else if (currentId < MIN_AVATAR_ID) {
+      currentId = MIN_AVATAR_ID;
+    }
+
+    return `0${currentId++}`.slice(-2);
+  };
+})();
 
 const createAuthor = () => ({
-  avatar: `img/avatars/user${getRandomAvatarId()}.png`,
+  avatar: `img/avatars/user${getUniqueAvatarId()}.png`,
 });
 
 const getRandomArrayElements = (elementsNumber, arr) => {
