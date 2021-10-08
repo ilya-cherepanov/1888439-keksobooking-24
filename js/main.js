@@ -5,8 +5,8 @@ const MAX_LONGITUDE = 139.80000;
 const LOCATION_PRECISION = 5;
 
 
-const MIN_AVATAR_ID = 1;
-const MAX_AVATAR_ID = 10;
+const MIN_USER_ID = 1;
+const MAX_USER_ID = 10;
 
 
 const ANNOUNCEMENT_COUNT = 10;
@@ -84,23 +84,15 @@ const createLocation = () => ({
   lng: getRandomFixedPoint(MIN_LONGITUDE, MAX_LONGITUDE, LOCATION_PRECISION),
 });
 
-const getUniqueAvatarId = (() => {
-  let currentId = MIN_AVATAR_ID;
+const createAuthor = (userId) => {
+  const trimmedUserId = Math.max(MIN_USER_ID, Math.min(userId, MAX_USER_ID));
 
-  return () => {
-    if (currentId > MAX_AVATAR_ID) {
-      currentId = MAX_AVATAR_ID;
-    } else if (currentId < MIN_AVATAR_ID) {
-      currentId = MIN_AVATAR_ID;
-    }
+  const avatarId = `0${trimmedUserId}`.slice(-2);
 
-    return `0${currentId++}`.slice(-2);
+  return {
+    avatar: `img/avatars/user${avatarId}.png`,
   };
-})();
-
-const createAuthor = () => ({
-  avatar: `img/avatars/user${getUniqueAvatarId()}.png`,
-});
+};
 
 const getRandomArrayElements = (elementsNumber, arr) => {
   if (elementsNumber >= arr.length) {
@@ -117,25 +109,27 @@ const getRandomArrayElements = (elementsNumber, arr) => {
   );
 };
 
+const getOneRandomArrayElement = (array) => array[getRandomInt(0, array.length - 1)];
+
 const createOffer = (location) => ({
-  title: OFFER_TITLES[getRandomInt(0, OFFER_TITLES.length - 1)],
+  title: getOneRandomArrayElement(OFFER_TITLES),
   address: `${location.lat}, ${location.lng}`,
   price: getRandomInt(MIN_PRICE, MAX_PRICE),
-  type: OFFER_TYPES[getRandomInt(0, OFFER_TYPES.length - 1)],
+  type: getOneRandomArrayElement(OFFER_TYPES),
   rooms: getRandomInt(1, MAX_ROOMS),
   guests: getRandomInt(1, MAX_GUESTS),
-  checkin: CHECKIN_TIMES[getRandomInt(0, CHECKIN_TIMES.length - 1)],
-  checkout: CHECKOUT_TIMES[getRandomInt(0, CHECKOUT_TIMES.length - 1)],
+  checkin: getOneRandomArrayElement(CHECKIN_TIMES),
+  checkout: getOneRandomArrayElement(CHECKOUT_TIMES),
   features: getRandomArrayElements(getRandomInt(0, ALL_FEATURES.length), ALL_FEATURES),
-  description: OFFER_DESCRIPTIONS[getRandomInt(0, OFFER_DESCRIPTIONS.length - 1)],
+  description: getOneRandomArrayElement(OFFER_DESCRIPTIONS),
   photos: getRandomArrayElements(getRandomInt(0, PHOTOS.length), PHOTOS),
 });
 
-const createAnnouncement = () => {
+const createAnnouncement = (userId) => {
   const location = createLocation();
 
   return {
-    author: createAuthor(),
+    author: createAuthor(userId),
     offer: createOffer(location),
     location,
   };
@@ -143,6 +137,7 @@ const createAnnouncement = () => {
 
 
 // eslint-disable-next-line no-unused-vars
-const announcements = Array.from({ length: ANNOUNCEMENT_COUNT }, createAnnouncement);
-getRandomInt(10, 20);
-getRandomFixedPoint(1.5, 1.6, 2);
+const announcements = Array.from(
+  { length: ANNOUNCEMENT_COUNT },
+  (value, index) => createAnnouncement(index + 1),
+);
