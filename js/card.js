@@ -8,17 +8,16 @@ import {
 } from './utils/fillers.js';
 
 
-const PopupType = {
-  flat: 'Квартира',
-  bungalow: 'Бунгало',
-  house: 'Дом',
-  palace: 'Дворец',
-  hotel: 'Отель',
-};
-
-
 const getFilledCard = (announcement) => {
   const popup = copyTemplate('#card');
+
+  const popupType = {
+    flat: 'Квартира',
+    bungalow: 'Бунгало',
+    house: 'Дом',
+    palace: 'Дворец',
+    hotel: 'Отель',
+  };
 
   const { offer, author } = announcement;
 
@@ -29,7 +28,7 @@ const getFilledCard = (announcement) => {
     (price) => `${price} <span>₽/ночь</span>`,
     offer.price,
   );
-  fillText(popup.querySelector('.popup__type'), PopupType[offer.type]);
+  fillText(popup.querySelector('.popup__type'), popupType[offer.type]);
   fillText(
     popup.querySelector('.popup__text--capacity'),
     (rooms, guests) => `${rooms} комнаты для ${guests} гостей`,
