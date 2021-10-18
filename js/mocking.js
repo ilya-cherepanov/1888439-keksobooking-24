@@ -13,10 +13,6 @@ const MAX_LONGITUDE = 139.80000;
 const LOCATION_PRECISION = 5;
 
 
-const MIN_USER_ID = 1;
-const MAX_USER_ID = 10;
-
-
 const ALL_FEATURES = [
   'wifi',
   'dishwasher',
@@ -74,9 +70,7 @@ const createLocation = () => ({
 
 
 const createAuthor = (userId) => {
-  const trimmedUserId = Math.max(MIN_USER_ID, Math.min(userId, MAX_USER_ID));
-
-  const avatarId = `0${trimmedUserId}`.slice(-2);
+  const avatarId = userId < 10 ? `0${userId}` : userId;
 
   return {
     avatar: `img/avatars/user${avatarId}.png`,
