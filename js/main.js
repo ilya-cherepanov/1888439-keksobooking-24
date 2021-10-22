@@ -1,13 +1,12 @@
 import { createAnnouncement } from './mocking.js';
 import { getFilledCard } from './card.js';
-import { disableAdForm, disableFilter } from './form.js';
+import { setPageInteractivity } from './page.js';
 
 
 const ANNOUNCEMENT_COUNT = 10;
 
 
-disableAdForm();
-disableFilter();
+setPageInteractivity(false);
 
 const announcements = Array.from(
   { length: ANNOUNCEMENT_COUNT },
