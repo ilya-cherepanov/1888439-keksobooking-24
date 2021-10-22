@@ -1,9 +1,12 @@
 import { createAnnouncement } from './mocking.js';
 import { getFilledCard } from './card.js';
+import { setPageInteractivity } from './page.js';
 
 
 const ANNOUNCEMENT_COUNT = 10;
 
+
+setPageInteractivity(false);
 
 const announcements = Array.from(
   { length: ANNOUNCEMENT_COUNT },
