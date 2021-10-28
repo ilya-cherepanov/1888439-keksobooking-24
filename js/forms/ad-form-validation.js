@@ -1,7 +1,6 @@
 import {
-  registerValidationHandlers,
-  unregisterValidationHandlers,
-  createValidationHandlers
+  createValidationHandlers,
+  setValidationHandlers
 } from '../utils/validation.js';
 
 
@@ -83,18 +82,12 @@ const onTypeInputHandler = () => {
 const setAdFormValidationHandling = (enabled) => {
   const adForm = document.querySelector('.ad-form');
 
-  if (enabled) {
-    setMinPrice();
-    adForm.querySelector('#type').addEventListener('input', onTypeInputHandler);
-    registerValidationHandlers(adForm.querySelector('#title'), onTitleInputHandler, onTitleInvalidHandler);
-    registerValidationHandlers(adForm.querySelector('#price'), onPriceInputHandler, onPriceInvalidHandler);
-    registerValidationHandlers(adForm.querySelector('#capacity'), onCapacityInputHandler, onCapacityInvalidHandler);
-  } else {
-    adForm.querySelector('#type').removeEventListener('input', onTypeInputHandler);
-    unregisterValidationHandlers(adForm.querySelector('#title'), onTitleInputHandler, onTitleInvalidHandler);
-    unregisterValidationHandlers(adForm.querySelector('#price'), onPriceInputHandler, onPriceInvalidHandler);
-    unregisterValidationHandlers(adForm.querySelector('#capacity'), onCapacityInputHandler, onCapacityInvalidHandler);
-  }
+  setMinPrice();
+
+  adForm.querySelector('#type')[enabled ? 'addEventListener' : 'removeEventListener']('input', onTypeInputHandler);
+  setValidationHandlers(adForm.querySelector('#title'), onTitleInputHandler, onTitleInvalidHandler, enabled);
+  setValidationHandlers(adForm.querySelector('#price'), onPriceInputHandler, onPriceInvalidHandler, enabled);
+  setValidationHandlers(adForm.querySelector('#capacity'), onCapacityInputHandler, onCapacityInvalidHandler, enabled);
 };
 
 

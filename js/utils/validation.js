@@ -12,19 +12,13 @@ const createValidationHandlers = (printValidity) => {
   return { onInputHandler, onInvalidHandler };
 };
 
-const registerValidationHandlers = (formElement, onInputHandler, onInvalidHandler) => {
-  formElement.addEventListener('input', onInputHandler);
-  formElement.addEventListener('invalid', onInvalidHandler);
-};
-
-const unregisterValidationHandlers = (formElement, onInputHandler, onInvalidHandler) => {
-  formElement.removeEventListener('input', onInputHandler);
-  formElement.removeEventListener('invalid', onInvalidHandler);
+const setValidationHandlers = (formElement, onInputHandler, onInvalidHandler, handlerAddition = true) => {
+  formElement[handlerAddition ? 'addEventListener' : 'removeEventListener']('input', onInputHandler);
+  formElement[handlerAddition ? 'addEventListener' : 'removeEventListener']('invalid', onInvalidHandler);
 };
 
 
 export {
   createValidationHandlers,
-  registerValidationHandlers,
-  unregisterValidationHandlers
+  setValidationHandlers
 };
