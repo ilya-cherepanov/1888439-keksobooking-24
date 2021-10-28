@@ -1,7 +1,5 @@
-import {
-  setAdFormInteractivity,
-  setFilterInteractivity
-} from './form.js';
+import { setAdFormInteractivity } from './forms/ad-form.js';
+import { setFilterInteractivity } from './forms/filter.js';
 
 const setPageInteractivity = (enabled) => {
   setAdFormInteractivity(enabled);

@@ -6,7 +6,7 @@ import { setPageInteractivity } from './page.js';
 const ANNOUNCEMENT_COUNT = 10;
 
 
-setPageInteractivity(false);
+setPageInteractivity(true);
 
 const announcements = Array.from(
   { length: ANNOUNCEMENT_COUNT },
