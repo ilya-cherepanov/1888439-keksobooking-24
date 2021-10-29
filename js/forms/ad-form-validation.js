@@ -1,5 +1,6 @@
 import {
   createValidationHandlers,
+  setInputHandler,
   setValidationHandlers
 } from '../utils/validation.js';
 
@@ -57,7 +58,7 @@ const setMinPrice = () => {
     'palace': 10000,
   };
 
-  priceInput.min = buildTypeToMinPrice[buildTypeSelect.value];
+  priceInput.placeholder = priceInput.min = buildTypeToMinPrice[buildTypeSelect.value];
 };
 
 const {
@@ -79,12 +80,19 @@ const onTypeInputHandler = () => {
   setMinPrice();
 };
 
+const onTimeInputHandler = ({ target }) => {
+  const anotherTimeSelect = document.querySelector(target.id === 'timein' ? '#timeout' : '#timein');
+  anotherTimeSelect.value = target.value;
+};
+
 const setAdFormValidationHandling = (enabled) => {
   const adForm = document.querySelector('.ad-form');
 
   setMinPrice();
 
-  adForm.querySelector('#type')[enabled ? 'addEventListener' : 'removeEventListener']('input', onTypeInputHandler);
+  setInputHandler(adForm.querySelector('#type'), onTypeInputHandler, enabled);
+  setInputHandler(adForm.querySelector('#timein'), onTimeInputHandler, enabled);
+  setInputHandler(adForm.querySelector('#timeout'), onTimeInputHandler, enabled);
   setValidationHandlers(adForm.querySelector('#title'), onTitleInputHandler, onTitleInvalidHandler, enabled);
   setValidationHandlers(adForm.querySelector('#price'), onPriceInputHandler, onPriceInvalidHandler, enabled);
   setValidationHandlers(adForm.querySelector('#capacity'), onCapacityInputHandler, onCapacityInvalidHandler, enabled);
