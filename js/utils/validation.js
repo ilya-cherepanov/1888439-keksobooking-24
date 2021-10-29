@@ -1,30 +1,29 @@
 const createValidationHandlers = (printValidity) => {
 
-  const onInputHandler = ({ target: targetElement }) => {
-    printValidity(targetElement);
-    targetElement.reportValidity();
+  const onInputHandler = ({ target }) => {
+    printValidity(target);
+    target.reportValidity();
   };
 
-  const onInvalidHandler = ({ target: targetElement }) => {
-    printValidity(targetElement);
+  const onInvalidHandler = ({ target }) => {
+    printValidity(target);
   };
 
   return { onInputHandler, onInvalidHandler };
 };
 
-const registerValidationHandlers = (formElement, onInputHandler, onInvalidHandler) => {
-  formElement.addEventListener('input', onInputHandler);
-  formElement.addEventListener('invalid', onInvalidHandler);
+const setInputHandler = (formElement, onInputHandler, handlerAddition = true) => {
+  formElement[handlerAddition ? 'addEventListener' : 'removeEventListener']('input', onInputHandler);
 };
 
-const unregisterValidationHandlers = (formElement, onInputHandler, onInvalidHandler) => {
-  formElement.removeEventListener('input', onInputHandler);
-  formElement.removeEventListener('invalid', onInvalidHandler);
+const setValidationHandlers = (formElement, onInputHandler, onInvalidHandler, handlerAddition = true) => {
+  setInputHandler(formElement, onInputHandler, handlerAddition);
+  formElement[handlerAddition ? 'addEventListener' : 'removeEventListener']('invalid', onInvalidHandler);
 };
 
 
 export {
   createValidationHandlers,
-  registerValidationHandlers,
-  unregisterValidationHandlers
+  setInputHandler,
+  setValidationHandlers
 };
