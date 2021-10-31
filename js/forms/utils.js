@@ -6,5 +6,10 @@ const setFormInteractivity = (formClass, formFieldsSelector, enabled) => {
   formFields.forEach((field) => field.disabled = !enabled);
 };
 
+const setAdFormAddress = (lat, lng) => document.querySelector('#address').value = `${lng}, ${lat}`;
 
-export { setFormInteractivity };
+
+export {
+  setFormInteractivity,
+  setAdFormAddress
+};

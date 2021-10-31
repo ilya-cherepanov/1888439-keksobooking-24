@@ -1,17 +1,3 @@
-import { createAnnouncement } from './mocking.js';
-import { getFilledCard } from './card.js';
-import { setPageInteractivity } from './page.js';
+import { initPage } from './page.js';
 
-
-const ANNOUNCEMENT_COUNT = 10;
-
-
-setPageInteractivity(true);
-
-const announcements = Array.from(
-  { length: ANNOUNCEMENT_COUNT },
-  (value, index) => createAnnouncement(index + 1),
-);
-
-document.querySelector('#map-canvas')
-  .appendChild(getFilledCard(announcements[0]));
+initPage();
