@@ -1,6 +1,11 @@
 import { getFilledCard } from './card.js';
 import { setAdFormAddress } from './forms/utils.js';
+import { setAdFormInteractivity } from './forms/ad-form.js';
+import { setFilterInteractivity } from './forms/filter.js';
+import { loadData } from './data.js';
 
+
+const ANNOUNCEMENT_COUNT = 10;
 
 const TOKIO_LAT = 35.675;
 const TOKIO_LNG = 139.75;
@@ -20,27 +25,29 @@ const SECONDARY_ICON = L.icon({
   iconAnchor: [SECONDARY_ICON_SIZE / 2, SECONDARY_ICON_SIZE],
 });
 
+const MAIN_PIN_MARKER = (() => {
+  const mainPinMarker = createMarker(TOKIO_LAT, TOKIO_LNG, true);
+  mainPinMarker.on('moveend', onMainPinMoveendHandler);
 
-const initMap = (mapId, onMapLoadedHandler) => {
-  const map = L.map(mapId)
-    .on('load', onMapLoadedHandler)
-    .setView({
-      lat: TOKIO_LAT,
-      lng: TOKIO_LNG,
-    }, MAP_SCALE);
+  return mainPinMarker;
+})();
 
+const MAP = L.map('map-canvas')
+  .on('load', onMapLoadedHandler);
+
+
+const loadOSMMap = () => {
   L.tileLayer(
     'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
     {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors | Icons made by <a href="https://www.freepik.com" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a>',
     },
-  ).addTo(map);
-
-  return map;
+  ).addTo(MAP);
 };
 
-const createMarker = (lat, lng, isMain = false) => (
-  L.marker(
+
+function createMarker(lat, lng, isMain = false) {
+  return L.marker(
     {
       lat,
       lng,
@@ -49,8 +56,8 @@ const createMarker = (lat, lng, isMain = false) => (
       icon: isMain ? MAIN_ICON : SECONDARY_ICON,
       draggable: isMain,
     },
-  )
-);
+  );
+}
 
 const drawSimilarMarkers = (map, announcements) => {
   announcements.forEach((announcement) => {
@@ -62,24 +69,62 @@ const drawSimilarMarkers = (map, announcements) => {
   });
 };
 
-const onMainPinMoveendHandler = ({ target }) => {
-  const { lat, lng } = target.getLatLng();
-  setAdFormAddress(lat, lng);
+const showAlert = (message) => {
+  const alertContainer = document.createElement('div');
+  alertContainer.style.zIndex = 1000;
+  alertContainer.style.position = 'absolute';
+  alertContainer.style.left = 0;
+  alertContainer.style.top = 0;
+  alertContainer.style.right = 0;
+  alertContainer.style.padding = '10px 3px';
+  alertContainer.style.fontSize = '30px';
+  alertContainer.style.textAlign = 'center';
+  alertContainer.style.backgroundColor = 'red';
+
+  alertContainer.textContent = message;
+
+  document.querySelector('.map').prepend(alertContainer);
 };
 
-const drawMap = (onMapLoadedHandler) => {
-  const map = initMap('map-canvas', onMapLoadedHandler);
+async function onMapLoadedHandler({ target }) {
+  setAdFormInteractivity(true);
 
-  const mainPinMaker = createMarker(TOKIO_LAT, TOKIO_LNG, true);
-  mainPinMaker.addTo(map);
+  let announcements = null;
+  try {
+    announcements = await loadData();
+  } catch(error) {
+    showAlert('Не удалось загрузить данные. Попробуйте позже');
+    return;
+  }
+
+  drawSimilarMarkers(target, announcements.slice(0, ANNOUNCEMENT_COUNT - 1));
+  setFilterInteractivity(true);
+}
+
+function onMainPinMoveendHandler({ target }) {
+  const { lat, lng } = target.getLatLng();
+  setAdFormAddress(lat, lng);
+}
+
+const drawMap = () => {
+  MAP.setView({
+    lat: TOKIO_LAT,
+    lng: TOKIO_LNG,
+  }, MAP_SCALE);
+  loadOSMMap();
+  MAIN_PIN_MARKER.addTo(MAP);
   setAdFormAddress(TOKIO_LAT, TOKIO_LNG);
+};
 
-  mainPinMaker.on('moveend', onMainPinMoveendHandler);
-  return map;
+const resetMap = () => {
+  MAP.closePopup();
+  setAdFormAddress(TOKIO_LAT, TOKIO_LNG);
+  MAIN_PIN_MARKER.setLatLng({lat: TOKIO_LAT, lng: TOKIO_LNG});
 };
 
 
 export {
   drawMap,
-  drawSimilarMarkers
+  drawSimilarMarkers,
+  resetMap
 };

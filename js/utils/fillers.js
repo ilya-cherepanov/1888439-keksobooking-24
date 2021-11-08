@@ -30,7 +30,7 @@ const fillSrc = (element, value) => {
 };
 
 const fillByArray = (element, array, setter) => {
-  if (array.length === 0) {
+  if (!array || array.length === 0) {
     element.classList.add('hidden');
     element.innerHTML = '';
     return;
