@@ -25,12 +25,8 @@ const SECONDARY_ICON = L.icon({
   iconAnchor: [SECONDARY_ICON_SIZE / 2, SECONDARY_ICON_SIZE],
 });
 
-const MAIN_PIN_MARKER = (() => {
-  const mainPinMarker = createMarker(TOKIO_LAT, TOKIO_LNG, true);
-  mainPinMarker.on('moveend', onMainPinMoveendHandler);
-
-  return mainPinMarker;
-})();
+const MAIN_PIN_MARKER = createMarker(TOKIO_LAT, TOKIO_LNG, true)
+  .on('moveend', onMainPinMoveendHandler);
 
 const MAP = L.map('map-canvas')
   .on('load', onMapLoadedHandler);
@@ -46,6 +42,7 @@ const loadOSMMap = () => {
 };
 
 
+// Нужен hoisting
 function createMarker(lat, lng, isMain = false) {
   return L.marker(
     {
@@ -86,6 +83,7 @@ const showAlert = (message) => {
   document.querySelector('.map').prepend(alertContainer);
 };
 
+// Нужен hoisting
 async function onMapLoadedHandler({ target }) {
   setAdFormInteractivity(true);
 
@@ -101,6 +99,7 @@ async function onMapLoadedHandler({ target }) {
   setFilterInteractivity(true);
 }
 
+// Нужен hoisting
 function onMainPinMoveendHandler({ target }) {
   const { lat, lng } = target.getLatLng();
   setAdFormAddress(lat, lng);

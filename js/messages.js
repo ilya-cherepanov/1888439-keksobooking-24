@@ -1,4 +1,5 @@
 import { copyTemplate } from './utils/dom.js';
+import { setListener } from './forms/utils.js';
 
 
 const isEscKey = (evt) => evt.keyCode === 27;
@@ -8,7 +9,7 @@ const closeMessages = () => {
   messageElements.forEach((messageElement) => messageElement.remove());
 };
 
-const onEscHandler = (evt) => {
+const onDocumentEscKeyHandler = (evt) => {
   if (!isEscKey(evt)) {
     return;
   }
@@ -17,7 +18,7 @@ const onEscHandler = (evt) => {
   setCloseHandling(false);
 };
 
-const onClickHandler = () => {
+const onDocumentClickHandler = () => {
   closeMessages();
   setCloseHandling(false);
 };
@@ -30,8 +31,8 @@ const onClickCloseButtonHandler = (evt) => {
 
 // Нужен hoisting
 function setCloseHandling(enabled){
-  document[enabled ? 'addEventListener' : 'removeEventListener']('keydown', onEscHandler);
-  document[enabled ? 'addEventListener' : 'removeEventListener']('click', onClickHandler);
+  setListener(document, 'keydown', onDocumentEscKeyHandler, enabled);
+  setListener(document, 'click', onDocumentClickHandler, enabled);
 }
 
 const showMessage = (type) => {
