@@ -2,7 +2,7 @@ import { getFilledCard } from './card.js';
 import { setAdFormAddress } from './forms/utils.js';
 import { setAdFormInteractivity } from './forms/ad-form.js';
 import { setFilterInteractivity } from './forms/filter.js';
-import { loadData } from './data.js';
+import { loadJsonData } from './utils/api.js';
 
 
 const ANNOUNCEMENT_COUNT = 10;
@@ -89,7 +89,7 @@ async function onMapLoadedHandler({ target }) {
 
   let announcements = null;
   try {
-    announcements = await loadData();
+    announcements = await loadJsonData('https://24.javascript.pages.academy/keksobooking/data');
   } catch(error) {
     showAlert('Не удалось загрузить данные. Попробуйте позже');
     return;

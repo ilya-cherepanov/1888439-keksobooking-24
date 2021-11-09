@@ -1,6 +1,10 @@
 import { copyTemplate } from './utils/dom.js';
 import { setListener } from './forms/utils.js';
 
+const MessageType = {
+  SUCCESS: 'success',
+  ERROR: 'error',
+};
 
 const isEscKey = (evt) => evt.keyCode === 27;
 
@@ -39,7 +43,7 @@ const showMessage = (type) => {
   const messageElement = copyTemplate(`#${type}`);
 
   setCloseHandling(true);
-  if (type === 'error') {
+  if (type === MessageType.ERROR) {
     messageElement.querySelector('.error__button').addEventListener('click', onClickCloseButtonHandler);
   }
 
@@ -47,4 +51,4 @@ const showMessage = (type) => {
 };
 
 
-export { showMessage };
+export { showMessage, MessageType };
