@@ -1,7 +1,7 @@
 import { setFormInteractivity, resetForms, setListener } from './utils.js';
 import { setAdFormValidationHandling } from './ad-form-validation.js';
-import { sendData } from '../data.js';
-import { showMessage } from '../messages.js';
+import { sendFormData } from '../utils/api.js';
+import { showMessage, MessageType } from '../messages.js';
 
 
 const onAdFormSubmitHandler = async (evt) => {
@@ -9,14 +9,14 @@ const onAdFormSubmitHandler = async (evt) => {
 
   const formData = new FormData(evt.target);
   try {
-    await sendData(evt.target.action, formData);
+    await sendFormData(evt.target.action, formData);
   } catch (error) {
-    showMessage('error');
+    showMessage(MessageType.ERROR);
     return;
   }
 
   evt.target.reset();
-  showMessage('success');
+  showMessage(MessageType.SUCCESS);
   resetForms();
 };
 
