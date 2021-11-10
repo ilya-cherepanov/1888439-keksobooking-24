@@ -1,8 +1,9 @@
 import { getFilledCard } from './card.js';
 import { setAdFormAddress } from './forms/utils.js';
 import { setAdFormInteractivity } from './forms/ad-form.js';
-import { setFilterInteractivity } from './forms/filter.js';
-import { loadJsonData } from './utils/api.js';
+import { setFilterInteractivity, createAnnouncementsFilter } from './forms/filter.js';
+import { loadTextData } from './utils/api.js';
+import { debounce } from './utils/debounce.js';
 
 
 const ANNOUNCEMENT_COUNT = 10;
@@ -24,6 +25,8 @@ const SECONDARY_ICON = L.icon({
   iconSize: [SECONDARY_ICON_SIZE, SECONDARY_ICON_SIZE],
   iconAnchor: [SECONDARY_ICON_SIZE / 2, SECONDARY_ICON_SIZE],
 });
+
+const SECONDARY_PINS_LAYER = L.layerGroup();
 
 const MAIN_PIN_MARKER = createMarker(TOKIO_LAT, TOKIO_LNG, true)
   .on('moveend', onMainPinMoveendHandler);
@@ -56,15 +59,32 @@ function createMarker(lat, lng, isMain = false) {
   );
 }
 
-const drawSimilarMarkers = (map, announcements) => {
+const drawSecondaryMarkers = (announcements) => {
+  SECONDARY_PINS_LAYER.remove();
+  SECONDARY_PINS_LAYER.clearLayers();
+
   announcements.forEach((announcement) => {
     const { lat, lng } = announcement.location;
     const pinMarker = createMarker(lat, lng);
-
-    pinMarker.addTo(map);
+    pinMarker.addTo(SECONDARY_PINS_LAYER);
     pinMarker.bindPopup(getFilledCard(announcement));
+
   });
+
+  SECONDARY_PINS_LAYER.addTo(MAP);
 };
+
+const drawSimilarMarkers = () => {
+  const announcementsFilter = createAnnouncementsFilter();
+  drawSecondaryMarkers(
+    announcementsFilter(
+      JSON.parse(localStorage.getItem('announcements')),
+      ANNOUNCEMENT_COUNT,
+    ),
+  );
+};
+
+const drawDebouncedSimilarMarkers = debounce(drawSimilarMarkers);
 
 const showAlert = (message) => {
   const alertContainer = document.createElement('div');
@@ -84,18 +104,20 @@ const showAlert = (message) => {
 };
 
 // Нужен hoisting
-async function onMapLoadedHandler({ target }) {
+async function onMapLoadedHandler() {
   setAdFormInteractivity(true);
 
-  let announcements = null;
   try {
-    announcements = await loadJsonData('https://24.javascript.pages.academy/keksobooking/data');
+    localStorage.setItem(
+      'announcements',
+      await loadTextData('https://24.javascript.pages.academy/keksobooking/data'),
+    );
   } catch(error) {
     showAlert('Не удалось загрузить данные. Попробуйте позже');
     return;
   }
 
-  drawSimilarMarkers(target, announcements.slice(0, ANNOUNCEMENT_COUNT - 1));
+  drawSimilarMarkers();
   setFilterInteractivity(true);
 }
 
@@ -115,9 +137,14 @@ const drawMap = () => {
   setAdFormAddress(TOKIO_LAT, TOKIO_LNG);
 };
 
-const resetMap = () => {
+const closeMapPopup = () => {
   MAP.closePopup();
+};
+
+const resetMap = () => {
+  closeMapPopup();
   setAdFormAddress(TOKIO_LAT, TOKIO_LNG);
+  drawSimilarMarkers();
   MAIN_PIN_MARKER.setLatLng({lat: TOKIO_LAT, lng: TOKIO_LNG});
 };
 
@@ -125,5 +152,7 @@ const resetMap = () => {
 export {
   drawMap,
   drawSimilarMarkers,
-  resetMap
+  closeMapPopup,
+  resetMap,
+  drawDebouncedSimilarMarkers
 };

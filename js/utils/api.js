@@ -8,10 +8,10 @@ const makeRequest = async (url, parameters = {}) => {
   return response;
 };
 
-const loadJsonData = async (url) => {
+const loadTextData = async (url) => {
   const response = await makeRequest(url);
 
-  return response.json();
+  return response.text();
 };
 
 const sendFormData = async (url, formData) => {
@@ -22,6 +22,6 @@ const sendFormData = async (url, formData) => {
 };
 
 export {
-  loadJsonData,
+  loadTextData,
   sendFormData
 };
