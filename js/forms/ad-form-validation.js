@@ -4,6 +4,13 @@ import {
   setValidationHandlers
 } from '../utils/validation.js';
 
+const printInvalidFrame = (target) => {
+  const validityOk = target.checkValidity();
+
+  target.style.outlineWidth = validityOk ? '' : 3;
+  target.style.outlineStyle = validityOk ? '' : 'solid';
+  target.style.outlineColor = validityOk ? '' : 'red';
+};
 
 const printTileInputValidity = (titleInput) => {
   if (titleInput.validity.valueMissing) {
@@ -15,6 +22,8 @@ const printTileInputValidity = (titleInput) => {
   } else {
     titleInput.setCustomValidity('');
   }
+
+  printInvalidFrame(titleInput);
 };
 
 const printPriceInputValidity = (priceInput) => {
@@ -27,6 +36,8 @@ const printPriceInputValidity = (priceInput) => {
   } else {
     priceInput.setCustomValidity('');
   }
+
+  printInvalidFrame(priceInput);
 };
 
 const printCapacitySelectValidity = (capacitySelect) => {
@@ -44,6 +55,8 @@ const printCapacitySelectValidity = (capacitySelect) => {
   } else {
     capacitySelect.setCustomValidity('');
   }
+
+  printInvalidFrame(capacitySelect);
 };
 
 const setMinPrice = () => {
