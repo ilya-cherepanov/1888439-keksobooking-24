@@ -2,10 +2,23 @@ import { setFormInteractivity, setListener } from './utils.js';
 import { closeMapPopup, drawDebouncedSimilarMarkers } from '../map.js';
 
 
+const ANY_VALUE = 'any';
+
+const LOW_PRICE = 'low';
+const MIDDLE_PRICE = 'middle';
+const HIGH_PRICE  = 'high';
+
+const PriceLevel = {
+  LOW: { MAX: 10000 },
+  MIDDLE: { MIN: 10000, MAX: 50000 },
+  HIGH: { MIN: 50000 },
+};
+
+
 const isNumber = (number) => !isNaN(number);
 
 const isEqualFilter = (filtratedValue, filterParameter) => {
-  if (filterParameter === 'any') {
+  if (filterParameter === ANY_VALUE) {
     return true;
   }
 
@@ -30,14 +43,15 @@ const filterPrice = (announcement, filterParameter) => {
   const price = announcement.offer.price;
 
   switch (filterParameter) {
-    case 'any':
+    case ANY_VALUE:
       return true;
-    case 'middle':
-      return price >= 10000 && price <= 50000;
-    case 'low':
-      return price < 10000;
-    case 'high':
-      return price > 50000;
+    case MIDDLE_PRICE:
+      return price >= PriceLevel.MIDDLE.MIN
+        && price <= PriceLevel.MIDDLE.MAX;
+    case LOW_PRICE:
+      return price < PriceLevel.LOW.MAX;
+    case HIGH_PRICE:
+      return price > PriceLevel.HIGH.MIN;
     default:
       return false;
   }
@@ -53,6 +67,16 @@ const getHousingFeaturesParameters = () => {
   const featureInputs = document.querySelectorAll('#housing-features input:checked');
 
   return [...featureInputs].map((featureInput) => featureInput.value);
+};
+
+const filterAnnouncement = (filters, filterParameters, announcement) => {
+  for (const [filterName, filter] of Object.entries(filters)) {
+    if (!filter(announcement, filterParameters[filterName])) {
+      return false;
+    }
+  }
+
+  return true;
 };
 
 const createAnnouncementsFilter = () => {
@@ -74,17 +98,19 @@ const createAnnouncementsFilter = () => {
   };
 
   return (announcements, maxElements) => {
-    const similarAnnouncements = announcements.filter((announcement) => {
-      for (const [filterName, filter] of Object.entries(filters)) {
-        if (!filter(announcement, filterParameters[filterName])) {
-          return false;
-        }
+    const similarAnnouncements = [];
+
+    for (const announcement of announcements) {
+      if (filterAnnouncement(filters, filterParameters, announcement)) {
+        similarAnnouncements.push(announcement);
       }
 
-      return true;
-    });
+      if (similarAnnouncements.length >= maxElements) {
+        break;
+      }
+    }
 
-    return similarAnnouncements.slice(0, maxElements);
+    return similarAnnouncements;
   };
 };
 

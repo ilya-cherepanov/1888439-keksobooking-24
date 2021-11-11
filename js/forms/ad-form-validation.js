@@ -3,6 +3,14 @@ import {
   setInputHandler,
   setValidationHandlers
 } from '../utils/validation.js';
+import {
+  resetAvatarPreview,
+  resetImagesPreview,
+  drawInvalidFrame
+} from './utils.js';
+
+
+const IMAGE_TYPES = ['gif', 'jpg', 'jpeg', 'png'];
 
 
 const printTileInputValidity = (titleInput) => {
@@ -15,6 +23,8 @@ const printTileInputValidity = (titleInput) => {
   } else {
     titleInput.setCustomValidity('');
   }
+
+  drawInvalidFrame(titleInput);
 };
 
 const printPriceInputValidity = (priceInput) => {
@@ -27,6 +37,8 @@ const printPriceInputValidity = (priceInput) => {
   } else {
     priceInput.setCustomValidity('');
   }
+
+  drawInvalidFrame(priceInput);
 };
 
 const printCapacitySelectValidity = (capacitySelect) => {
@@ -44,6 +56,8 @@ const printCapacitySelectValidity = (capacitySelect) => {
   } else {
     capacitySelect.setCustomValidity('');
   }
+
+  drawInvalidFrame(capacitySelect);
 };
 
 const setMinPrice = () => {
@@ -85,6 +99,51 @@ const onTimeInputHandler = ({ target }) => {
   anotherTimeSelect.value = target.value;
 };
 
+const checkFileIsImage = (file) => {
+  const fileName = file.name.toLowerCase();
+
+  return IMAGE_TYPES.some((imageType) => (
+    fileName.endsWith(imageType)
+  ));
+};
+
+const drawAvatarPreview = (file) => {
+  const avatarPreview = document.querySelector('.ad-form-header__preview > img');
+  avatarPreview.src = URL.createObjectURL(file);
+};
+
+const drawImagesPreview = (file) => {
+  const image = document.createElement('img');
+  image.src = URL.createObjectURL(file);
+
+  const adFormPhotos = document.querySelector('.ad-form__photo');
+  adFormPhotos.innerHTML = '';
+  adFormPhotos.append(image);
+};
+
+const checkValidityAndPreview = (target, drawPreview, resetPreview, markedElementClass) => {
+  const file = target.files[0];
+  const matches = checkFileIsImage(file);
+
+  if (matches) {
+    drawPreview(file);
+    target.setCustomValidity('');
+  } else {
+    resetPreview();
+    target.setCustomValidity('Тип файла не поддерживается!');
+  }
+
+  drawInvalidFrame(target, document.querySelector(`.${markedElementClass}`));
+};
+
+const onAvatarInputHandler = ({ target }) => {
+  checkValidityAndPreview(target, drawAvatarPreview, resetAvatarPreview, 'ad-form-header__drop-zone');
+};
+
+const onImagesInputHandler = ({ target }) => {
+  checkValidityAndPreview(target, drawImagesPreview, resetImagesPreview, 'ad-form__drop-zone');
+};
+
 const setAdFormValidationHandling = (enabled) => {
   const adForm = document.querySelector('.ad-form');
 
@@ -93,6 +152,8 @@ const setAdFormValidationHandling = (enabled) => {
   setInputHandler(adForm.querySelector('#type'), onTypeInputHandler, enabled);
   setInputHandler(adForm.querySelector('#timein'), onTimeInputHandler, enabled);
   setInputHandler(adForm.querySelector('#timeout'), onTimeInputHandler, enabled);
+  setInputHandler(adForm.querySelector('#avatar'), onAvatarInputHandler, enabled);
+  setInputHandler(adForm.querySelector('#images'), onImagesInputHandler, enabled);
   setValidationHandlers(adForm.querySelector('#title'), onTitleInputHandler, onTitleInvalidHandler, enabled);
   setValidationHandlers(adForm.querySelector('#price'), onPriceInputHandler, onPriceInvalidHandler, enabled);
   setValidationHandlers(adForm.querySelector('#capacity'), onCapacityInputHandler, onCapacityInvalidHandler, enabled);
