@@ -1,5 +1,5 @@
 import { getFilledCard } from './card.js';
-import { setAdFormAddress } from './forms/utils.js';
+import { setAdFormAddress, setAddressFieldReadonly } from './forms/utils.js';
 import { setAdFormInteractivity } from './forms/ad-form.js';
 import { setFilterInteractivity, createAnnouncementsFilter } from './forms/filter.js';
 import { loadTextData } from './utils/api.js';
@@ -106,6 +106,7 @@ const showAlert = (message) => {
 // Нужен hoisting
 async function onMapLoadedHandler() {
   setAdFormInteractivity(true);
+  setAddressFieldReadonly(true);
 
   try {
     localStorage.setItem(

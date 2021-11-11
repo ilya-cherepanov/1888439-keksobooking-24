@@ -3,20 +3,15 @@ import {
   setInputHandler,
   setValidationHandlers
 } from '../utils/validation.js';
+import {
+  resetAvatarPreview,
+  resetImagesPreview,
+  drawInvalidFrame
+} from './utils.js';
 
 
 const IMAGE_TYPES = ['gif', 'jpg', 'jpeg', 'png'];
 
-
-const drawInvalidFrame = (formElement, markedElement) => {
-  markedElement = markedElement || formElement;
-
-  const validityOk = formElement.checkValidity();
-
-  markedElement.style.outlineWidth = validityOk ? '' : 3;
-  markedElement.style.outlineStyle = validityOk ? '' : 'solid';
-  markedElement.style.outlineColor = validityOk ? '' : 'red';
-};
 
 const printTileInputValidity = (titleInput) => {
   if (titleInput.validity.valueMissing) {
@@ -104,12 +99,11 @@ const onTimeInputHandler = ({ target }) => {
   anotherTimeSelect.value = target.value;
 };
 
-
 const checkFileIsImage = (file) => {
   const fileName = file.name.toLowerCase();
 
-  return IMAGE_TYPES.some((it) => (
-    fileName.endsWith(it)
+  return IMAGE_TYPES.some((imageType) => (
+    fileName.endsWith(imageType)
   ));
 };
 
@@ -127,26 +121,27 @@ const drawImagesPreview = (file) => {
   adFormPhotos.append(image);
 };
 
-const checkValidityAndPreview = (target, drawPreviewCallback, markedElementClass) => {
+const checkValidityAndPreview = (target, drawPreview, resetPreview, markedElementClass) => {
   const file = target.files[0];
   const matches = checkFileIsImage(file);
 
   if (matches) {
-    drawPreviewCallback(file);
+    drawPreview(file);
     target.setCustomValidity('');
   } else {
-    target.setCustomValidity('Тип файла не подджерживается!');
+    resetPreview();
+    target.setCustomValidity('Тип файла не поддерживается!');
   }
 
   drawInvalidFrame(target, document.querySelector(`.${markedElementClass}`));
 };
 
 const onAvatarInputHandler = ({ target }) => {
-  checkValidityAndPreview(target, drawAvatarPreview, 'ad-form-header__drop-zone');
+  checkValidityAndPreview(target, drawAvatarPreview, resetAvatarPreview, 'ad-form-header__drop-zone');
 };
 
 const onImagesInputHandler = ({ target }) => {
-  checkValidityAndPreview(target, drawImagesPreview, 'ad-form__drop-zone');
+  checkValidityAndPreview(target, drawImagesPreview, resetImagesPreview, 'ad-form__drop-zone');
 };
 
 const setAdFormValidationHandling = (enabled) => {
