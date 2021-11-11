@@ -4,12 +4,18 @@ import {
   setValidationHandlers
 } from '../utils/validation.js';
 
-const printInvalidFrame = (target) => {
-  const validityOk = target.checkValidity();
 
-  target.style.outlineWidth = validityOk ? '' : 3;
-  target.style.outlineStyle = validityOk ? '' : 'solid';
-  target.style.outlineColor = validityOk ? '' : 'red';
+const IMAGE_TYPES = ['gif', 'jpg', 'jpeg', 'png'];
+
+
+const drawInvalidFrame = (formElement, markedElement) => {
+  markedElement = markedElement || formElement;
+
+  const validityOk = formElement.checkValidity();
+
+  markedElement.style.outlineWidth = validityOk ? '' : 3;
+  markedElement.style.outlineStyle = validityOk ? '' : 'solid';
+  markedElement.style.outlineColor = validityOk ? '' : 'red';
 };
 
 const printTileInputValidity = (titleInput) => {
@@ -23,7 +29,7 @@ const printTileInputValidity = (titleInput) => {
     titleInput.setCustomValidity('');
   }
 
-  printInvalidFrame(titleInput);
+  drawInvalidFrame(titleInput);
 };
 
 const printPriceInputValidity = (priceInput) => {
@@ -37,7 +43,7 @@ const printPriceInputValidity = (priceInput) => {
     priceInput.setCustomValidity('');
   }
 
-  printInvalidFrame(priceInput);
+  drawInvalidFrame(priceInput);
 };
 
 const printCapacitySelectValidity = (capacitySelect) => {
@@ -56,7 +62,7 @@ const printCapacitySelectValidity = (capacitySelect) => {
     capacitySelect.setCustomValidity('');
   }
 
-  printInvalidFrame(capacitySelect);
+  drawInvalidFrame(capacitySelect);
 };
 
 const setMinPrice = () => {
@@ -98,6 +104,51 @@ const onTimeInputHandler = ({ target }) => {
   anotherTimeSelect.value = target.value;
 };
 
+
+const checkFileIsImage = (file) => {
+  const fileName = file.name.toLowerCase();
+
+  return IMAGE_TYPES.some((it) => (
+    fileName.endsWith(it)
+  ));
+};
+
+const drawAvatarPreview = (file) => {
+  const avatarPreview = document.querySelector('.ad-form-header__preview > img');
+  avatarPreview.src = URL.createObjectURL(file);
+};
+
+const drawImagesPreview = (file) => {
+  const image = document.createElement('img');
+  image.src = URL.createObjectURL(file);
+
+  const adFormPhotos = document.querySelector('.ad-form__photo');
+  adFormPhotos.innerHTML = '';
+  adFormPhotos.append(image);
+};
+
+const checkValidityAndPreview = (target, drawPreviewCallback, markedElementClass) => {
+  const file = target.files[0];
+  const matches = checkFileIsImage(file);
+
+  if (matches) {
+    drawPreviewCallback(file);
+    target.setCustomValidity('');
+  } else {
+    target.setCustomValidity('Тип файла не подджерживается!');
+  }
+
+  drawInvalidFrame(target, document.querySelector(`.${markedElementClass}`));
+};
+
+const onAvatarInputHandler = ({ target }) => {
+  checkValidityAndPreview(target, drawAvatarPreview, 'ad-form-header__drop-zone');
+};
+
+const onImagesInputHandler = ({ target }) => {
+  checkValidityAndPreview(target, drawImagesPreview, 'ad-form__drop-zone');
+};
+
 const setAdFormValidationHandling = (enabled) => {
   const adForm = document.querySelector('.ad-form');
 
@@ -106,6 +157,8 @@ const setAdFormValidationHandling = (enabled) => {
   setInputHandler(adForm.querySelector('#type'), onTypeInputHandler, enabled);
   setInputHandler(adForm.querySelector('#timein'), onTimeInputHandler, enabled);
   setInputHandler(adForm.querySelector('#timeout'), onTimeInputHandler, enabled);
+  setInputHandler(adForm.querySelector('#avatar'), onAvatarInputHandler, enabled);
+  setInputHandler(adForm.querySelector('#images'), onImagesInputHandler, enabled);
   setValidationHandlers(adForm.querySelector('#title'), onTitleInputHandler, onTitleInvalidHandler, enabled);
   setValidationHandlers(adForm.querySelector('#price'), onPriceInputHandler, onPriceInvalidHandler, enabled);
   setValidationHandlers(adForm.querySelector('#capacity'), onCapacityInputHandler, onCapacityInvalidHandler, enabled);
