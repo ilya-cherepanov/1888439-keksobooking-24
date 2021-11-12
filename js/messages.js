@@ -1,12 +1,14 @@
 import { copyTemplate } from './utils/dom.js';
 import { setListener } from './forms/utils.js';
 
+const ESC_KEY_CODE = 27;
+
 const MessageType = {
   SUCCESS: 'success',
   ERROR: 'error',
 };
 
-const isEscKey = (evt) => evt.keyCode === 27;
+const isEscKey = (evt) => evt.keyCode === ESC_KEY_CODE;
 
 const closeMessages = () => {
   const messageElements = document.querySelectorAll('body > .success, body > .error');

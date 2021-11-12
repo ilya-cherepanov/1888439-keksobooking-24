@@ -2,7 +2,7 @@ import { getFilledCard } from './card.js';
 import { setAdFormAddress, setAddressFieldReadonly } from './forms/utils.js';
 import { setAdFormInteractivity } from './forms/ad-form.js';
 import { setFilterInteractivity, createAnnouncementsFilter } from './forms/filter.js';
-import { loadTextData } from './utils/api.js';
+import { loadJsonData } from './utils/api.js';
 import { debounce } from './utils/debounce.js';
 
 
@@ -28,11 +28,9 @@ const SECONDARY_ICON = L.icon({
 
 const SECONDARY_PINS_LAYER = L.layerGroup();
 
-const MAIN_PIN_MARKER = createMarker(TOKIO_LAT, TOKIO_LNG, true)
-  .on('moveend', onMainPinMoveendHandler);
+const MAIN_PIN_MARKER = createMarker(TOKIO_LAT, TOKIO_LNG, true);
 
-const MAP = L.map('map-canvas')
-  .on('load', onMapLoadedHandler);
+const MAP = L.map('map-canvas');
 
 
 const loadOSMMap = () => {
@@ -74,18 +72,6 @@ const drawSecondaryMarkers = (announcements) => {
   SECONDARY_PINS_LAYER.addTo(MAP);
 };
 
-const drawSimilarMarkers = () => {
-  const announcementsFilter = createAnnouncementsFilter();
-  drawSecondaryMarkers(
-    announcementsFilter(
-      JSON.parse(localStorage.getItem('announcements')),
-      ANNOUNCEMENT_COUNT,
-    ),
-  );
-};
-
-const drawDebouncedSimilarMarkers = debounce(drawSimilarMarkers);
-
 const showAlert = (message) => {
   const alertContainer = document.createElement('div');
   alertContainer.style.zIndex = 1000;
@@ -103,38 +89,52 @@ const showAlert = (message) => {
   document.querySelector('.map').prepend(alertContainer);
 };
 
-// Нужен hoisting
-async function onMapLoadedHandler() {
-  setAdFormInteractivity(true);
-  setAddressFieldReadonly(true);
+const loadSimilarAnnouncements = async () => {
+  let announcements = null;
 
   try {
-    localStorage.setItem(
-      'announcements',
-      await loadTextData('https://24.javascript.pages.academy/keksobooking/data'),
-    );
+    announcements = await loadJsonData('https://24.javascript.pages.academy/keksobooking/data');
   } catch(error) {
     showAlert('Не удалось загрузить данные. Попробуйте позже');
     return;
   }
 
-  drawSimilarMarkers();
-  setFilterInteractivity(true);
-}
+  const announcementsFilter = createAnnouncementsFilter();
 
-// Нужен hoisting
-function onMainPinMoveendHandler({ target }) {
+  return announcementsFilter(announcements, ANNOUNCEMENT_COUNT);
+};
+
+const drawSimilarMarkers = async () => {
+  const similarAnnouncements = await loadSimilarAnnouncements();
+  drawSecondaryMarkers(similarAnnouncements);
+};
+
+const drawDebouncedSimilarMarkers = debounce(drawSimilarMarkers);
+
+const onMapLoadedHandler = async () => {
+  setAdFormInteractivity(true);
+  setAddressFieldReadonly(true);
+
+  await drawSimilarMarkers();
+  setFilterInteractivity(true);
+};
+
+const onMainPinMoveendHandler = ({ target }) => {
   const { lat, lng } = target.getLatLng();
   setAdFormAddress(lat, lng);
-}
+};
 
 const drawMap = () => {
-  MAP.setView({
-    lat: TOKIO_LAT,
-    lng: TOKIO_LNG,
-  }, MAP_SCALE);
+  MAP.on('load', onMapLoadedHandler)
+    .setView({
+      lat: TOKIO_LAT,
+      lng: TOKIO_LNG,
+    }, MAP_SCALE);
   loadOSMMap();
+
+  MAIN_PIN_MARKER.on('moveend', onMainPinMoveendHandler);
   MAIN_PIN_MARKER.addTo(MAP);
+
   setAdFormAddress(TOKIO_LAT, TOKIO_LNG);
 };
 
@@ -142,11 +142,11 @@ const closeMapPopup = () => {
   MAP.closePopup();
 };
 
-const resetMap = () => {
+const resetMap = async () => {
   closeMapPopup();
   setAdFormAddress(TOKIO_LAT, TOKIO_LNG);
-  drawSimilarMarkers();
   MAIN_PIN_MARKER.setLatLng({lat: TOKIO_LAT, lng: TOKIO_LNG});
+  await drawSimilarMarkers();
 };
 
 
