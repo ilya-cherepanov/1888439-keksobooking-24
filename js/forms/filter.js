@@ -63,8 +63,8 @@ const filterFeatures = (announcement, filterParameters) => {
   return filterParameters.every((parameter) => features ? features.includes(parameter) : false);
 };
 
-const getHousingFeaturesParameters = () => {
-  const featureInputs = document.querySelectorAll('#housing-features input:checked');
+const getHousingFeaturesParameters = (filterForm) => {
+  const featureInputs = filterForm.querySelectorAll('#housing-features input:checked');
 
   return [...featureInputs].map((featureInput) => featureInput.value);
 };
@@ -94,7 +94,7 @@ const createAnnouncementsFilter = () => {
     price: filterForm.querySelector('#housing-price').value,
     rooms: filterForm.querySelector('#housing-rooms').value,
     guests: filterForm.querySelector('#housing-guests').value,
-    features: getHousingFeaturesParameters(),
+    features: getHousingFeaturesParameters(filterForm),
   };
 
   return (announcements, maxElements) => {

@@ -7,6 +7,7 @@ import { debounce } from './utils/debounce.js';
 
 
 const ANNOUNCEMENT_COUNT = 10;
+const AVAILABLE_ANNOUNCEMENTS_URL = 'https://24.javascript.pages.academy/keksobooking/data';
 
 const TOKIO_LAT = 35.675;
 const TOKIO_LNG = 139.75;
@@ -28,6 +29,7 @@ const SECONDARY_ICON = L.icon({
 
 const SECONDARY_PINS_LAYER = L.layerGroup();
 
+const MAIN_PIN_ZINDEX = 1000;
 const MAIN_PIN_MARKER = createMarker(TOKIO_LAT, TOKIO_LNG, true);
 
 const MAP = L.map('map-canvas');
@@ -53,6 +55,7 @@ function createMarker(lat, lng, isMain = false) {
     {
       icon: isMain ? MAIN_ICON : SECONDARY_ICON,
       draggable: isMain,
+      zIndexOffset: isMain ? MAIN_PIN_ZINDEX : 0,
     },
   );
 }
@@ -74,11 +77,11 @@ const drawSecondaryMarkers = (announcements) => {
 
 const showAlert = (message) => {
   const alertContainer = document.createElement('div');
-  alertContainer.style.zIndex = 1000;
+  alertContainer.style.zIndex = '1000';
   alertContainer.style.position = 'absolute';
-  alertContainer.style.left = 0;
-  alertContainer.style.top = 0;
-  alertContainer.style.right = 0;
+  alertContainer.style.left = '0';
+  alertContainer.style.top = '0';
+  alertContainer.style.right = '0';
   alertContainer.style.padding = '10px 3px';
   alertContainer.style.fontSize = '30px';
   alertContainer.style.textAlign = 'center';
@@ -89,23 +92,28 @@ const showAlert = (message) => {
   document.querySelector('.map').prepend(alertContainer);
 };
 
-const loadSimilarAnnouncements = async () => {
+const getSimilarAnnouncements = (() => {
   let announcements = null;
 
-  try {
-    announcements = await loadJsonData('https://24.javascript.pages.academy/keksobooking/data');
-  } catch(error) {
-    showAlert('Не удалось загрузить данные. Попробуйте позже');
-    return;
-  }
+  return async () => {
+    if (!Array.isArray(announcements) && !announcements) {
+      try {
+        announcements = await loadJsonData(AVAILABLE_ANNOUNCEMENTS_URL);
+        setFilterInteractivity(true);
+      } catch (error) {
+        showAlert('Не удалось загрузить данные. Попробуйте позже');
+        announcements = [];
+      }
+    }
 
-  const announcementsFilter = createAnnouncementsFilter();
+    const announcementsFilter = createAnnouncementsFilter();
 
-  return announcementsFilter(announcements, ANNOUNCEMENT_COUNT);
-};
+    return announcementsFilter(announcements, ANNOUNCEMENT_COUNT);
+  };
+})();
 
 const drawSimilarMarkers = async () => {
-  const similarAnnouncements = await loadSimilarAnnouncements();
+  const similarAnnouncements = await getSimilarAnnouncements();
   drawSecondaryMarkers(similarAnnouncements);
 };
 
@@ -116,10 +124,9 @@ const onMapLoadedHandler = async () => {
   setAddressFieldReadonly(true);
 
   await drawSimilarMarkers();
-  setFilterInteractivity(true);
 };
 
-const onMainPinMoveendHandler = ({ target }) => {
+const onMainPinMoveHandler = ({ target }) => {
   const { lat, lng } = target.getLatLng();
   setAdFormAddress(lat, lng);
 };
@@ -132,7 +139,7 @@ const drawMap = () => {
     }, MAP_SCALE);
   loadOSMMap();
 
-  MAIN_PIN_MARKER.on('moveend', onMainPinMoveendHandler);
+  MAIN_PIN_MARKER.on('move', onMainPinMoveHandler);
   MAIN_PIN_MARKER.addTo(MAP);
 
   setAdFormAddress(TOKIO_LAT, TOKIO_LNG);
