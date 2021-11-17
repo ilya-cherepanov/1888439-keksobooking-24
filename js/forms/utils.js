@@ -2,9 +2,25 @@ import { resetMap } from '../map.js';
 
 
 const DEFAULT_AVATAR_PATH = '/img/avatars/default.png';
+const COORDINATE_PRECISION = 5;
+
+const BuildTypeToMinPrice = {
+  'bungalow': 0,
+  'flat': 1000,
+  'hotel': 3000,
+  'house': 5000,
+  'palace': 10000,
+};
 
 
-const setRedOutline = (element, enabled, width = 3, style = 'solid', color = 'red') => {
+const setMinPrice = () => {
+  const buildTypeSelect = document.querySelector('#type');
+  const priceInput = buildTypeSelect.form.querySelector('#price');
+
+  priceInput.placeholder = priceInput.min = BuildTypeToMinPrice[buildTypeSelect.value];
+};
+
+const setRedOutline = (element, enabled, width = '3px', style = 'solid', color = 'red') => {
   element.style.outlineWidth = enabled ? width : '';
   element.style.outlineStyle = enabled ? style : '';
   element.style.outlineColor = enabled ? color : '';
@@ -30,7 +46,9 @@ const setListener = (element, evt, handler, enabled) => (
   element[enabled ? 'addEventListener' : 'removeEventListener'](evt, handler)
 );
 
-const setAdFormAddress = (lat, lng) => document.querySelector('#address').value = `${lng}, ${lat}`;
+const setAdFormAddress = (lat, lng) => (
+  document.querySelector('#address').value = `${lng.toFixed(COORDINATE_PRECISION)}, ${lat.toFixed(COORDINATE_PRECISION)}`
+);
 
 const resetAvatarPreview = () => {
   const avatarPreview = document.querySelector('.ad-form-header__preview img');
@@ -49,10 +67,15 @@ const clearInvalidFrames = (adForm) => {
   setRedOutline(adForm.querySelector('.ad-form__drop-zone'), false);
 };
 
-const resetForms = () => {
+const resetAdForm = () => {
   const adForm = document.querySelector('.ad-form');
   adForm.reset();
+  setMinPrice();
   clearInvalidFrames(adForm);
+};
+
+const resetForms = () => {
+  resetAdForm();
 
   document.querySelector('.map__filters').reset();
 
@@ -76,5 +99,6 @@ export {
   setRedOutline,
   resetAvatarPreview,
   resetImagesPreview,
-  setAddressFieldReadonly
+  setAddressFieldReadonly,
+  setMinPrice
 };
