@@ -1,3 +1,4 @@
+import { AdForm, MapFilterForm } from './form-dom.js';
 import { resetMap } from '../map.js';
 
 
@@ -14,10 +15,7 @@ const BuildTypeToMinPrice = {
 
 
 const setMinPrice = () => {
-  const buildTypeSelect = document.querySelector('#type');
-  const priceInput = buildTypeSelect.form.querySelector('#price');
-
-  priceInput.placeholder = priceInput.min = BuildTypeToMinPrice[buildTypeSelect.value];
+  AdForm.PRICE_INPUT.placeholder = AdForm.PRICE_INPUT.min = BuildTypeToMinPrice[AdForm.TYPE_SELECT.value];
 };
 
 const setRedOutline = (element, enabled, width = '3px', style = 'solid', color = 'red') => {
@@ -47,37 +45,41 @@ const setListener = (element, evt, handler, enabled) => (
 );
 
 const setAdFormAddress = (lat, lng) => (
-  document.querySelector('#address').value = `${lng.toFixed(COORDINATE_PRECISION)}, ${lat.toFixed(COORDINATE_PRECISION)}`
+  AdForm.ADDRESS_INPUT.value = `${lng.toFixed(COORDINATE_PRECISION)}, ${lat.toFixed(COORDINATE_PRECISION)}`
 );
 
 const resetAvatarPreview = () => {
-  const avatarPreview = document.querySelector('.ad-form-header__preview img');
-  avatarPreview.src = DEFAULT_AVATAR_PATH;
+  AdForm.AVATAR_PREVIEW_ELEMENT.src = DEFAULT_AVATAR_PATH;
 };
 
 const resetImagesPreview = () => {
-  const adFormPhotos = document.querySelector('.ad-form__photo');
-  adFormPhotos.innerHTML = '';
+  AdForm.IMAGES_PREVIEW_ELEMENT.innerHTML = '';
 };
 
-const clearInvalidFrames = (adForm) => {
-  const elements = adForm.querySelectorAll('#title, #price, #capacity');
+const clearInvalidFrames = () => {
+  const elements = [
+    AdForm.TITLE_INPUT,
+    AdForm.PRICE_INPUT,
+    AdForm.CAPACITY_SELECT,
+    AdForm.AVATAR_DROP_ZONE_ELEMENT,
+    AdForm.IMAGES_DROP_ZONE_ELEMENT,
+  ];
+
   elements.forEach((element) => setRedOutline(element, false));
-  setRedOutline(adForm.querySelector('.ad-form-header__drop-zone'), false);
-  setRedOutline(adForm.querySelector('.ad-form__drop-zone'), false);
 };
 
 const resetAdForm = () => {
-  const adForm = document.querySelector('.ad-form');
-  adForm.reset();
+  AdForm.FORM_ELEMENT.reset();
+  AdForm.AVATAR_INPUT.setCustomValidity('');
+  AdForm.IMAGES_INPUT.setCustomValidity('');
   setMinPrice();
-  clearInvalidFrames(adForm);
+  clearInvalidFrames();
 };
 
 const resetForms = () => {
   resetAdForm();
 
-  document.querySelector('.map__filters').reset();
+  MapFilterForm.FORM_ELEMENT.reset();
 
   resetAvatarPreview();
   resetImagesPreview();
@@ -86,7 +88,7 @@ const resetForms = () => {
 };
 
 const setAddressFieldReadonly = (enabled) => {
-  document.querySelector('#address').readOnly = enabled;
+  AdForm.ADDRESS_INPUT.readOnly = enabled;
 };
 
 

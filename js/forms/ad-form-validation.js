@@ -1,3 +1,4 @@
+import { AdForm } from './form-dom.js';
 import {
   createValidationHandlers,
   setInputHandler,
@@ -51,7 +52,7 @@ const printPriceInputValidity = (priceInput) => {
 };
 
 const printCapacitySelectValidity = (capacitySelect, roomsSelect) => {
-  roomsSelect = roomsSelect || capacitySelect.form.querySelector('#room_number');
+  roomsSelect = roomsSelect || AdForm.ROOM_NUMBER_SELECT;
 
   if (!RoomsToCapacity[roomsSelect.value].includes(capacitySelect.value)) {
     capacitySelect.setCustomValidity('Количество мест не соответствует числу комнат!');
@@ -77,24 +78,21 @@ const {
   onInvalidHandler: onCapacityInvalidHandler,
 } = createValidationHandlers(printCapacitySelectValidity);
 
-const onTypeInputHandler = ({ target }) => {
+const onTypeInputHandler = () => {
   setMinPrice();
 
-  const priceInput = target.form.querySelector('#price');
-  if (priceInput.value) {
-    priceInput.reportValidity();
+  if (AdForm.PRICE_INPUT.value) {
+    AdForm.PRICE_INPUT.reportValidity();
   }
 };
 
 const onRoomNumberInputHandler = ({ target }) => {
-  const capacitySelect = target.form.querySelector('#capacity');
-  printCapacitySelectValidity(capacitySelect, target);
-  capacitySelect.reportValidity();
+  printCapacitySelectValidity(AdForm.CAPACITY_SELECT, target);
+  AdForm.CAPACITY_SELECT.reportValidity();
 };
 
 const onTimeInputHandler = ({ target }) => {
-  const anotherTimeSelect = target.form.querySelector(target.id === 'timein' ? '#timeout' : '#timein');
-  anotherTimeSelect.value = target.value;
+  AdForm.TIME_IN_SELECT.value = AdForm.TIME_OUT_SELECT.value = target.value;
 };
 
 const checkFileIsImage = (file) => {
@@ -106,8 +104,7 @@ const checkFileIsImage = (file) => {
 };
 
 const drawAvatarPreview = (file) => {
-  const avatarPreview = document.querySelector('.ad-form-header__preview > img');
-  avatarPreview.src = URL.createObjectURL(file);
+  AdForm.AVATAR_PREVIEW_ELEMENT.src = URL.createObjectURL(file);
 };
 
 const drawImagesPreview = (file) => {
@@ -115,12 +112,11 @@ const drawImagesPreview = (file) => {
   image.src = URL.createObjectURL(file);
   image.width = OFFER_IMAGE_PREVIEW_SIZE;
 
-  const adFormPhotos = document.querySelector('.ad-form__photo');
-  adFormPhotos.innerHTML = '';
-  adFormPhotos.append(image);
+  AdForm.IMAGES_PREVIEW_ELEMENT.innerHTML = '';
+  AdForm.IMAGES_PREVIEW_ELEMENT.append(image);
 };
 
-const checkValidityAndPreview = (target, drawPreview, resetPreview, markedElementClass) => {
+const checkValidityAndPreview = (target, drawPreview, resetPreview, markedElement) => {
   const file = target.files[0];
   const matches = checkFileIsImage(file);
 
@@ -133,31 +129,29 @@ const checkValidityAndPreview = (target, drawPreview, resetPreview, markedElemen
   }
 
   target.reportValidity();
-  drawInvalidFrame(target, document.querySelector(`.${markedElementClass}`));
+  drawInvalidFrame(target, markedElement);
 };
 
 const onAvatarInputHandler = ({ target }) => {
-  checkValidityAndPreview(target, drawAvatarPreview, resetAvatarPreview, 'ad-form-header__drop-zone');
+  checkValidityAndPreview(target, drawAvatarPreview, resetAvatarPreview, AdForm.AVATAR_DROP_ZONE_ELEMENT);
 };
 
 const onImagesInputHandler = ({ target }) => {
-  checkValidityAndPreview(target, drawImagesPreview, resetImagesPreview, 'ad-form__drop-zone');
+  checkValidityAndPreview(target, drawImagesPreview, resetImagesPreview, AdForm.IMAGES_DROP_ZONE_ELEMENT);
 };
 
 const setAdFormValidationHandling = (enabled) => {
-  const adForm = document.querySelector('.ad-form');
-
   setMinPrice();
 
-  setInputHandler(adForm.querySelector('#type'), onTypeInputHandler, enabled);
-  setInputHandler(adForm.querySelector('#timein'), onTimeInputHandler, enabled);
-  setInputHandler(adForm.querySelector('#timeout'), onTimeInputHandler, enabled);
-  setInputHandler(adForm.querySelector('#avatar'), onAvatarInputHandler, enabled);
-  setInputHandler(adForm.querySelector('#images'), onImagesInputHandler, enabled);
-  setInputHandler(adForm.querySelector('#room_number'), onRoomNumberInputHandler, enabled);
-  setValidationHandlers(adForm.querySelector('#title'), onTitleInputHandler, onTitleInvalidHandler, enabled);
-  setValidationHandlers(adForm.querySelector('#price'), onPriceInputHandler, onPriceInvalidHandler, enabled);
-  setValidationHandlers(adForm.querySelector('#capacity'), onCapacityInputHandler, onCapacityInvalidHandler, enabled);
+  setInputHandler(AdForm.TYPE_SELECT, onTypeInputHandler, enabled);
+  setInputHandler(AdForm.TIME_IN_SELECT, onTimeInputHandler, enabled);
+  setInputHandler(AdForm.TIME_OUT_SELECT, onTimeInputHandler, enabled);
+  setInputHandler(AdForm.AVATAR_INPUT, onAvatarInputHandler, enabled);
+  setInputHandler(AdForm.IMAGES_INPUT, onImagesInputHandler, enabled);
+  setInputHandler(AdForm.ROOM_NUMBER_SELECT, onRoomNumberInputHandler, enabled);
+  setValidationHandlers(AdForm.TITLE_INPUT, onTitleInputHandler, onTitleInvalidHandler, enabled);
+  setValidationHandlers(AdForm.PRICE_INPUT, onPriceInputHandler, onPriceInvalidHandler, enabled);
+  setValidationHandlers(AdForm.CAPACITY_SELECT, onCapacityInputHandler, onCapacityInvalidHandler, enabled);
 };
 
 

@@ -1,3 +1,4 @@
+import { AdForm } from './form-dom.js';
 import { setFormInteractivity, resetForms, setListener } from './utils.js';
 import { setAdFormValidationHandling } from './ad-form-validation.js';
 import { sendFormData } from '../utils/api.js';
@@ -31,8 +32,7 @@ const setAdFormInteractivity = (enabled) => {
   const adForm = setFormInteractivity('ad-form', 'fieldset', enabled);
   setListener(adForm, 'submit', onAdFormSubmitHandler, enabled);
 
-  const resetButton = adForm.querySelector('.ad-form__reset');
-  setListener(resetButton, 'click', onClickResetHandler, enabled);
+  setListener(AdForm.RESET_BUTTON, 'click', onClickResetHandler, enabled);
 };
 
 
